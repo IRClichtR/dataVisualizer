@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Résultats de la recherche</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <!-- Style CSS optionnel -->
+  </head>
+  <body>
+    <h1>Résultats pour la vidéo "{{ video_title }}"</h1>
+    <p>Filtré par le mot-clé : "{{ query_text }}"</p>
+
+    <!-- Vérifier si des résultats sont présents -->
+    {% if results %}
+    <table border="1">
+      <thead>
+        <tr>
+          <!-- Dynamiser l'affichage des en-têtes -->
+          {% for key in results[0].keys() %}
+          <th>{{ key }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Boucler sur les lignes -->
+        {% for row in results %}
+        <tr>
+          <!-- Boucler sur chaque valeur de la ligne -->
+          {% for value in row.values() %}
+          <td>{{ value }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>Aucun résultat trouvé.</p>
+    {% endif %}
+
+    <br />
+    <a href="/">Retour à la recherche</a>
+  </body>
+</html>
