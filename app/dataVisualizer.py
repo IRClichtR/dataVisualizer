@@ -1,34 +1,51 @@
 from flask import Flask, request, render_template
 import sqlite3
-import openai
+from openai import OpenAI
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
-openai.api_key = os.getenv('TEST_API_KEY')
+
+client = OpenAI(
+    api_key=os.getenv('TEST_API_KEY'),
+    organization=os.getenv('ORGA_ID'),
+    project=os.getenv('PROJECT_ID')
+)
+
 
 app = Flask(__name__)
 
+# response = client.chat.completions.create(
+#     messages=[{
+#         "role": "user",
+#         "content": "Say this is a test",
+#     }],
+#     model="gpt-4o-mini",
+# )
+
+
 def question_to_sql(question):
-    response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=f"Convert the following question into a SQL query: {question}",
-            max_token=150
+    response = client.completions.create(
+            model="gpt-3.5-turbo-instruct",
+            prompt=f"You're a helpful datascientist assistant. Convert the following question into a SQL query. Give only the sql query, no extra language added: {question}",
+            temperature=0,
             )
     return response.choices[0].text.strip()
 
 
 def summarize_data(results):
-    sumary_prompt = f"Summarize the following data: {results}"
-    response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=summary_prompt,
-            max_token=150
-            )
+    summary_prompt = f"Summarize the following data: {results}"
+    response = client.completions.create(
+            model="gpt-3.5-turbo-instruct",
+            prompt=f"You're a helpful datascientist assistant. {summary_prompt}",
+            temperature=0.8,
+            stream=True,
+    )
     return response.choice[0].text.strip()
 
 
 def execute_query(sql_query):
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('sqlDB.db')
     cursor = conn.cursor()
     cursor.execute(sql_query)
 
@@ -47,7 +64,7 @@ def index():
         results, column_names = execute_query(sql_query)
         summary = summarize_data(results)
 
-        return render_template('index.html')
+        return render_template('results.html')
 
     return render_template('index.html')
 
