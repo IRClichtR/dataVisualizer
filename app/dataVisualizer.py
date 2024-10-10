@@ -3,6 +3,7 @@ import sqlite3
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+from describe_sql_table import get_tables_and_columns
 
 load_dotenv()
 
@@ -15,19 +16,13 @@ client = OpenAI(
 
 app = Flask(__name__)
 
-# response = client.chat.completions.create(
-#     messages=[{
-#         "role": "user",
-#         "content": "Say this is a test",
-#     }],
-#     model="gpt-4o-mini",
-# )
-
 
 def question_to_sql(question):
+    sql_table = get_tables_and_columns()
+
     response = client.completions.create(
             model="gpt-3.5-turbo-instruct",
-            prompt=f"You're a helpful datascientist assistant. Convert the following question into a SQL query. Give only the sql query, no extra language added: {question}",
+            prompt=f"You're a helpful datascientist assistant. Convert the following question into a SQL query into the table and columns {sql_table}. Give only the sql query, no extra language added: {question}",
             temperature=0,
             )
     return response.choices[0].text.strip()
@@ -39,9 +34,8 @@ def summarize_data(results):
             model="gpt-3.5-turbo-instruct",
             prompt=f"You're a helpful datascientist assistant. {summary_prompt}",
             temperature=0.8,
-            stream=True,
     )
-    return response.choice[0].text.strip()
+    return response.choices[0].text.strip()
 
 
 def execute_query(sql_query):
