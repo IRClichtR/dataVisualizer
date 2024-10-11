@@ -1,0 +1,25 @@
+# Sensible files
+.env
+
+# Python
+Pipfile
+Pipfile.lock
+venv/
+env/
+
+# git
+.git/
+.gitignore
+README.md 
+LICENSE
+
+# cache files
+*.swp
+*.tmp
+*.bak
+*.old
+*.DS_Store
+*.un~
+.*~
+*~
+

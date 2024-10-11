@@ -1,0 +1,18 @@
+services:
+
+  data_visualizer:
+    container_name: data_visualizer
+    build:
+      context: ./app 
+      dockerfile: Dockerfile
+    # volumes:
+    #   - ./app:/app
+    env_file:
+      - .env
+    networks:
+      - data_visualizer
+    ports:
+      - "8000:8000"
+
+networks:
+  data_visualizer:
