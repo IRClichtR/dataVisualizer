@@ -1,12 +1,15 @@
 from flask import Flask, request, render_template
 import sqlite3
-from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from describe_sql_table import get_tables_and_columns
+from search_by_llm_query import *
+from sql_utils import *
+
 
 load_dotenv()
 
+db_path = os.getenv('DB_PATH')
+db_table = get_tables_and_columns(db_path)
 client = OpenAI(
     api_key=os.getenv('TEST_API_KEY'),
     organization=os.getenv('ORGA_ID'),
@@ -17,50 +20,48 @@ client = OpenAI(
 app = Flask(__name__)
 
 
-def question_to_sql(question):
-    sql_table = get_tables_and_columns()
-
-    response = client.completions.create(
-            model="gpt-3.5-turbo-instruct",
-            prompt=f"You're a helpful datascientist assistant. Convert the following question into a SQL query into the table and columns {sql_table}. Give only the sql query, no extra language added: {question}",
-            temperature=0,
-            )
-    return response.choices[0].text.strip()
-
-
-def summarize_data(results):
-    summary_prompt = f"Summarize the following data: {results}"
-    response = client.completions.create(
-            model="gpt-3.5-turbo-instruct",
-            prompt=f"You're a helpful datascientist assistant. {summary_prompt}",
-            temperature=0.8,
-    )
-    return response.choices[0].text.strip()
-
-
-def execute_query(sql_query):
-    conn = sqlite3.connect('sqlDB.db')
-    cursor = conn.cursor()
-    cursor.execute(sql_query)
-
-    results = cursor.fetchall()
-    column_names = [description[0] for description in cursor.description]
-
-    conn.close()
-    return results, column_names
-
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         question = request.form['question']
-        sql_query = question_to_sql(question)
+        sql_query = question_to_sql(question, client, sql_table)
         results, column_names = execute_query(sql_query)
-        summary = summarize_data(results)
+        summary = summarize_data(results, client)
 
         return render_template('results.html')
 
     return render_template('index.html')
 
-if __name__ == '__main__':
+
+@app.route('/explore_database', methods=['GET', 'POST'])
+def explore_database():
+    # get info on table to display
+    selected_table = request.form.get('table_name', list(db_table.keys())[0])
+    columns = db_table[selected_table]
+
+    # Define page size and number of elements
+    page = int(request.args.get('page', 1))
+    per_page = 25
+    
+    # Filters for each column 
+    filters = {col: request.form.get(col, '') for col in columns}
+
+    # search by keywords
+    search_query = request.form.get('search_query', '')
+
+    # Get filtered data 
+    rows, total_rows = get_filtered_data(db_path, selected_table, columns, page, per_page, filters, search_query)
+
+    return render_template('explore_database.html', 
+                           rows=rows, 
+                           columns=columns, 
+                           page=page, 
+                           per_page=per_page, 
+                           total_rows=total_rows, 
+                           filters=filters, 
+                           search_query=search_query, 
+                           tables=list(db_table.keys()), selected_table=selected_table)
+
+
+if  __name__ == '__main__':
     app.run(debug=True)
