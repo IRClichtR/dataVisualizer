@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Explorer la base de données</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
   </head>
   <body>
     <h2>Visualiser les données</h2>
@@ -45,9 +46,14 @@
       <button type="submit">Appliquer les filtres</button>
     </form>
 
-        <!-- Bouton pour envoyer les résultats à l'API OpenAI -->
-    <br />
-    <button onclick="sendResultsToOpenAI()">Envoyer à OpenAI</button>
+    <!-- Affichage du formulaire pour poser une question à OpenAI -->
+    <h3>Poser une question à OpenAI sur les résultats :</h3>
+    <form id="askOpenAIForm">
+      <label for="user_question">Entrez votre question :</label>
+      <input type="text" id="user_question" name="user_question" required>
+      <br />
+      <button type="button" onclick="sendResultsToOpenAI()">Envoyer à OpenAI</button>
+    </form>
 
     <!-- Tableau des données -->
     <table border="1">
@@ -83,10 +89,6 @@
     <a href="{{ url_for('index') }}">Retour à la recherche</a>
 
     <script>
-      function openInNewTab(url) {
-          window.open(url, '_blank').focus();
-      }
-
       function sendResultsToOpenAI() {
           let resultsText = '';
           document.querySelectorAll('tbody tr').forEach(function(row) {
@@ -97,20 +99,25 @@
               resultsText += rowText.trim() + '\n';
           });
 
+          // Récupérer la question posée par l'utilisateur
+          let userQuestion = document.getElementById('user_question').value;
+
           fetch("{{ url_for('ai_request') }}", {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ 'results': resultsText })
+              body: JSON.stringify({ 'results': resultsText, 'question': userQuestion })
           })
           .then(response => response.text())
           .then(data => {
+              alert('Ouverture du nouvel onglet. Encas de non ouverture vérifiez les autorisations pop-up');
               const newWindow = window.open();
               newWindow.document.write(data);
               newWindow.document.close();
           });
       }
     </script>
+
   </body>
 </html>

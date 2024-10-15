@@ -1,0 +1,121 @@
+/* Styles généraux */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #000;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+h2, h3 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #ddd;
+}
+
+/* Formulaires */
+form {
+    display: block;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #222;
+    border-radius: 5px;
+    width: 90%;
+    max-width: 600px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #fff;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #ccc;
+}
+
+/* Tableaux */
+table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #222;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #fff;
+    text-align: center;
+    color: #fff;
+}
+
+th {
+    background-color: #333;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #333;
+}
+
+tr:hover {
+    background-color: #444;
+}
+
+/* Pagination et liens */
+.pagination a {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background-color: #444;
+    color: #fff;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.pagination a:hover {
+    background-color: #555;
+}
+
+/* Lien de retour */
+a.return-link {
+    display: block;
+    text-align: center;
+    margin-top: 30px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
