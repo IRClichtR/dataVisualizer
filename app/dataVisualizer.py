@@ -63,5 +63,18 @@ def explore_database():
                            tables=list(db_table.keys()), selected_table=selected_table)
 
 
+@app.route('/ai_request', methods=['POST'])
+def ai_request():
+    data = request.get_json()
+    results_text = data.get('results', '')
+
+    if not results_text:
+        return jsonify({"error": "No results to process"}), 400
+
+    response = analyse_data(results_text, client)
+
+    return f"<html><body><h2>Résultats de la requête AI</h2><p>{response}</p></body></html>"
+    # return f"<html><body><h2>Résultats de la requête AI</h2><p>{response['choices'][0]['text']}</p></body></html>"
+
 if  __name__ == '__main__':
     app.run()
