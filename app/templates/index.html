@@ -3,19 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Interroger la base de données</title>
+    <title>Data Visualizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
   </head>
   <body>
-    <h1>Poser une question sur les données</h1>
-    <form method="POST">
-      <input
-        type="text"
-        name="question"
-        placeholder="Posez une question sur les données"
-      />
-      <button type="submit">Rechercher</button>
-    </form>
-    <h2>Ou explorer la base de données</h2>
-    <a href="{{ url_for('explore_database') }}">Explorer la base de données</a>
+    <h1>Data Visualizer</h1>
+      <h2>Explorez votre base de données</h2>
+      <a href="{{ url_for('explore_database') }}">Cliquez ici pour Explorer la base de données</a>
+
+
+      <h2>Générez une requête SQL</h2>
+      <form method="POST" action="/">
+        <label for="question">Posez votre question :</label>
+        <input type="text" id="question" name="question" placeholder="Ex. combien de vidéos commentées par utilisateur X ?" required>
+        
+        <!-- <label for="préciser_logiciel">Préciser le logiciel :</label> -->
+        <!-- <select id="préciser_logiciel" name="préciser_logiciel" required> -->
+        <!--   <option value="">Sélectionner un logiciel</option> -->
+        <!--   <option value="mysql">MySQL</option> -->
+        <!--   <option value="postgresql">PostgreSQL</option> -->
+        <!--   <option value="sqlite">SQLite</option> -->
+        <!--   <option value="mssql">SQL Server</option> -->
+        <!-- </select> -->
+        
+        <button type="submit">Générer la requête SQL</button>
+      </form>
+
+
   </body>
 </html>

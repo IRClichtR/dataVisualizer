@@ -27,7 +27,7 @@ def get_tables_and_columns(db_path):
     return res
 
 
-def execute_query(sql_query):
+def execute_query(sql_query, db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute(sql_query)

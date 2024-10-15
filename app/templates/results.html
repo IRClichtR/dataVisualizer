@@ -3,42 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Résultats de la recherche</title>
-    <link rel="stylesheet" href="/static/style.css" />
-    <!-- Style CSS optionnel -->
+    <title>Résultats de la requête SQL</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
   </head>
   <body>
-    <h1>Résultats pour la vidéo "{{ video_title }}"</h1>
-    <p>Filtré par le mot-clé : "{{ query_text }}"</p>
+  <div class="container">
+    <h1>Résultats de la requête SQL</h1>
 
-    <!-- Vérifier si des résultats sont présents -->
-    {% if results %}
-    <table border="1">
-      <thead>
-        <tr>
-          <!-- Dynamiser l'affichage des en-têtes -->
-          {% for key in results[0].keys() %}
-          <th>{{ key }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Boucler sur les lignes -->
-        {% for row in results %}
-        <tr>
-          <!-- Boucler sur chaque valeur de la ligne -->
-          {% for value in row.values() %}
-          <td>{{ value }}</td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p>Aucun résultat trouvé.</p>
-    {% endif %}
+      <!-- Afficher la requête SQL générée -->
+      <h2>Requête SQL générée :</h2>
+      <div class="sql-query">
+        {{ sql_query }}
+      </div>
 
-    <br />
-    <a href="/">Retour à la recherche</a>
-  </body>
+      <!-- Afficher les résultats sous forme de tableau -->
+      <h2>Aperçu des données générées :</h2>
+      <table>
+        <thead>
+          <tr>
+            {% for column in column_names %}
+            <th>{{ column }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in results %}
+          <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <a href="/">Revenir à la page d'accueil</a>
+    </div>
+  </body>        <!-- Dynamiser l'affichage des en-têtes -->
 </html>

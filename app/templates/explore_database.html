@@ -1,74 +1,123 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Explorer la base de données</title>
-</head>
-<body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+  </head>
+  <body>
     <h2>Visualiser les données</h2>
 
     <!-- Formulaire pour sélectionner la table et appliquer les filtres -->
     <form method="POST">
-        <label for="table_name">Sélectionner une table :</label>
-        <select name="table_name" id="table_name" onchange="this.form.submit()">
-            <!-- Options dynamiques pour chaque table -->
-            {% for table in tables %}
-            <option value="{{ table }}" {% if table == selected_table %}selected{% endif %}>{{ table }}</option>
-            {% endfor %}
-        </select>
-        <br>
-
-        <!-- Filtres pour chaque colonne générés dynamiquement -->
-        {% for col in columns %}
-        <label for="{{ col }}">Filtrer {{ col }}:</label>
-        <input type="text" name="{{ col }}" value="{{ filters[col] }}">
-        <br>
+      <label for="table_name">Sélectionner une table :</label>
+      <select name="table_name" id="table_name" onchange="this.form.submit()">
+        <!-- Options dynamiques pour chaque table -->
+        {% for table in tables %}
+        <option
+          value="{{ table }}"
+          {%
+          if
+          table == selected_table
+          %}
+          selected
+          {%
+          endif
+          %}
+        >
+          {{ table }}
+        </option>
         {% endfor %}
-        
-        <!-- Recherche générale par mots-clés -->
-        <label for="search_query">Recherche par mots-clés:</label>
-        <input type="text" name="search_query" value="{{ search_query }}">
-        <br>
-        <button type="submit">Appliquer les filtres</button>
+      </select>
+      <br />
+
+      <!-- Filtres pour chaque colonne générés dynamiquement -->
+      {% for col in columns %}
+      <label for="{{ col }}">Filtrer {{ col }}:</label>
+      <input type="text" name="{{ col }}" value="{{ filters[col] }}" />
+      <br />
+      {% endfor %}
+
+      <!-- Recherche générale par mots-clés -->
+      <label for="search_query">Recherche par mots-clés:</label>
+      <input type="text" name="search_query" value="{{ search_query }}" />
+      <br />
+      <button type="submit">Appliquer les filtres</button>
+    </form>
+
+    <!-- Affichage du formulaire pour poser une question à OpenAI -->
+    <h3>Poser une question à OpenAI sur les résultats :</h3>
+    <form id="askOpenAIForm">
+      <label for="user_question">Entrez votre question :</label>
+      <input type="text" id="user_question" name="user_question" required>
+      <br />
+      <button type="button" onclick="sendResultsToOpenAI()">Envoyer à OpenAI</button>
     </form>
 
     <!-- Tableau des données -->
     <table border="1">
-        <thead>
-            <tr>
-                {% for col in columns %}
-                <th>{{ col }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in rows %}
-            <tr>
-                {% for col in columns %}
-                <td>{{ row[col] }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <tr>
+          {% for col in columns %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          {% for col in columns %}
+          <td>{{ row[col] }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
 
     <!-- Pagination -->
     <div>
-        {% if page > 1 %}
-        <a href="/explore_database?page={{ page - 1 }}">Précédent</a>
-        {% endif %}
-        
-        Page {{ page }}
-
-        {% if page * per_page < total_rows %}
-        <a href="/explore_database?page={{ page + 1 }}">Suivant</a>
-        {% endif %}
+      {% if page > 1 %}
+      <a href="/explore_database?page={{ page - 1 }}">Précédent</a>
+      {% endif %} Page {{ page }} {% if page * per_page < total_rows %}
+      <a href="/explore_database?page={{ page + 1 }}">Suivant</a>
+      {% endif %}
     </div>
 
     <!-- Lien de retour à l'accueil -->
-    <br><br>
+    <br /><br />
     <a href="{{ url_for('index') }}">Retour à la recherche</a>
-</body>
-</html>
 
+    <script>
+      function sendResultsToOpenAI() {
+          let resultsText = '';
+          document.querySelectorAll('tbody tr').forEach(function(row) {
+              let rowText = '';
+              row.querySelectorAll('td').forEach(function(cell) {
+                  rowText += cell.textContent + ' | ';
+              });
+              resultsText += rowText.trim() + '\n';
+          });
+
+          // Récupérer la question posée par l'utilisateur
+          let userQuestion = document.getElementById('user_question').value;
+
+          fetch("{{ url_for('ai_request') }}", {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 'results': resultsText, 'question': userQuestion })
+          })
+          .then(response => response.text())
+          .then(data => {
+              alert('Ouverture du nouvel onglet. Encas de non ouverture vérifiez les autorisations pop-up');
+              const newWindow = window.open();
+              newWindow.document.write(data);
+              newWindow.document.close();
+          });
+      }
+    </script>
+
+  </body>
+</html>
